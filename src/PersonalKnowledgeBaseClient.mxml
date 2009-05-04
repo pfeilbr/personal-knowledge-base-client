@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" initialize="onInitialize()" width="800" height="600" minWidth="800" minHeight="600" maxWidth="800" maxHeight="600">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import com.adobe.serialization.json.*;
+			
+			private var _urlLoader:URLLoader = new URLLoader();
+			private var _items:ArrayCollection;
+		
+			private function onInitialize():void {
+				htmlView.addEventListener(flash.events.Event.COMPLETE, domLoadingComplete);
+				htmlView.location = "javascript_functionality.html";				
+				_urlLoader.addEventListener(Event.COMPLETE, urlLoader_onComplete);
+				
+				var url:String = "http://qik.appspot.com/items.json?pw=method00";
+				var urlRequest:URLRequest = new URLRequest(url);
+				_urlLoader.load(urlRequest);
+			}
+			
+			private function domLoadingComplete(event:Event):void {
+				//var result:String = htmlView.htmlLoader.window.sayHello();
+				//trace(result);
+			}
+			
+			private function wikiTextToHTML(wikiText:String):String {
+				return htmlView.htmlLoader.window.InstaView.convert(wikiText);
+			}
+			
+			private function urlLoader_onComplete(event:Event):void {
+				var jsonDecoder:JSONDecoder = new JSONDecoder(_urlLoader.data);
+				_items = new ArrayCollection(jsonDecoder.getValue());
+				for each(var item:Object in _items) {
+					trace("title = " + item.title);
+				}
+				
+				itemGrid.dataProvider = _items;
+			}
+			
+			private function viewGrid():void {
+				appStack.selectedChild = viewItemsPanel;
+			}
+			
+			private function viewItem():void {	
+				appStack.selectedChild = viewItemPanel;			
+			}
+			
+			private function viewEditItem():void {
+				appStack.selectedChild = editItemPanel;
+			}
+			
+			private function populateItemDetail():void {
+				var item:Object = itemGrid.selectedItem;
+				var htmlText:String = wikiTextToHTML(item.body);
+				trace(htmlText);  
+				
+				itemHTML.htmlText = htmlText;				
+			}
+			
+			private function populateEditItem():void {
+				var item:Object = itemGrid.selectedItem;
+				itemBody.text = item.body;
+				itemBody.setFocus(); 				
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:HTML width="1" height="1" id="htmlView" />
+	<mx:ViewStack id="appStack" top="0" left="0" right="0" bottom="0">
+		<mx:Panel id="viewItemsPanel" label="viewItemsPanel" width="100%" height="100%">
+			<mx:DataGrid id="itemGrid" bottom="10" right="10" left="10" top="10" itemDoubleClick="viewItem()" doubleClickEnabled="true" width="100%" height="100%">
+				<mx:columns>
+					<mx:DataGridColumn headerText="Title" dataField="title"/>
+					<mx:DataGridColumn headerText="Tags" dataField="tags"/>			
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:Panel>
+		<mx:Panel id="editItemPanel" label="editItemPanel" width="100%" height="100%" show="populateEditItem()">
+			<mx:HBox width="100%" height="35">
+				<mx:LinkButton label="back" click="viewGrid()"/>
+			</mx:HBox>
+			<mx:TextArea id="itemBody" text="Text" width="100%" height="100%"/>
+		</mx:Panel>
+		<mx:Panel id="viewItemPanel" label="viewItemPanel" width="100%" height="100%" show="populateItemDetail()">
+			<mx:HBox width="100%" height="30">
+				<mx:LinkButton label="back" click="viewGrid()"/>
+				<mx:LinkButton label="edit" click="viewEditItem()"/>
+			</mx:HBox>
+			<mx:HTML id="itemHTML" width="100%" height="100%" />
+		</mx:Panel>
+	</mx:ViewStack>
+</mx:WindowedApplication>
