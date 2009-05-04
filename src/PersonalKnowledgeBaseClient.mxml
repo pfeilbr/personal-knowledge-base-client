@@ -13,7 +13,6 @@
 				htmlView.location = "javascript_functionality.html";				
 				_urlLoader.addEventListener(Event.COMPLETE, urlLoader_onComplete);
 				
-				var url:String = "http://qik.appspot.com/items.json?pw=method00";
 				var urlRequest:URLRequest = new URLRequest(url);
 				_urlLoader.load(urlRequest);
 			}
