@@ -15,45 +15,49 @@
 		
 			private function onInitialize():void {
 				
+				// load css stylesheet into memory to be used later in building
+				// html page text string
 				var file:File = File.applicationDirectory.resolvePath("main.css");
 				var stream:FileStream = new FileStream();
 				stream.open(file, FileMode.READ);
 				_css = stream.readUTFBytes(stream.bytesAvailable);
 				
-				var itemManager:ItemManager = new ItemManager();
-				
+				// load "utility" html view.  this html view is only used to access
+				// javascript functionality from AS
 				htmlView.addEventListener(flash.events.Event.COMPLETE, domLoadingComplete);
 				htmlView.location = "javascript_functionality.html";				
+				
+				// hook up events for url loading
 				_urlLoader.addEventListener(Event.COMPLETE, urlLoader_onComplete);
 				_urlLoader.addEventListener(IOErrorEvent.IO_ERROR, urlLoader_onIOError);
 				
+				// load application settings from cache (shared object)
 				var url:String = _localSettingsSharedObject.data.url;
 				var userName:String = _localSettingsSharedObject.data.userName;
 				var password:String = _localSettingsSharedObject.data.password;
 				
+				// load data if we have cached credentials
 				if (url && userName && password) {
 					loadData(url, userName, password);
-				} else {
+				} else { // show login view to prompt for credentials
 					viewLogin();
 				}
 			}
 						
 			private function domLoadingComplete(event:Event):void {
-				//var result:String = htmlView.htmlLoader.window.sayHello();
 				//trace(result);
 			}
 			
 			private function urlLoader_onIOError(event:Event):void {
 				_loginErrorMsg = "Invalid URL, User Name, or Password.  Please try again.";
 				viewLogin();
-				trace(event);
 			}
 			
 			private function loadData(url:String, userName:String, password:String):void {
 				url += "?pw=" + password;
 				var urlRequest:URLRequest = new URLRequest(url);
-				trace("loading data from " + url);
 				
+				// clear out items from grid
 				if (itemGrid) {
 					itemGrid.dataProvider = null;
 				}
@@ -61,7 +65,7 @@
 				try {
 					_urlLoader.load(urlRequest);
 				} catch (error:Error) {
-					viewLogin();
+					viewLogin(); // prompt for credentials if url load fails
 				}						
 			}
 			
