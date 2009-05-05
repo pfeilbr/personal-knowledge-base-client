@@ -1,3 +1,7 @@
 h1. Personal Knowledge Base Client
 
 An Adobe AIR online/offline client to manage a personal knowledge base.
+
+h1. External Components
+
+h2. 
